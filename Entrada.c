@@ -2,39 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#define MURO 2
-//#define	agua
-#define VACIO 0
-#define IRROMPIBLE 1
-//#define arbustos
-//#define jugador
-#define TBLOQUE 3
-#define FILAS 44
-#define COLUMNAS 41
-#define JUGADOR1 6
-#define JUGADOR2 7
-//#define NARCH 
-void bordearmapa(int x,int y,int **m,int material){
-	for(int i= 0; i<y; i++){
-		for(int j= 0; j<x; j++){
-			if((j==0) || (i==0) || (i==y-1) || (j==x-1)) m[i][j]= material;
-		}
-	}
-}
-void random(int *x, int max, int min){
-	(*x)= (rand()%(max-(min)+1))+(min);
-}
-void rellenar(int nx,int ny,int *c,int **m, int material){
-	for(int i= -1; i<2; i++){
-		for(int j= -1; j<2; j++){
-			if(m[ny+i][nx+j]!=material) (*c)++;
-			m[ny+i][nx+j]= material;	
-		}
-	}
-}
-void espacios(int n){
-	for(int k= 0;k<n;k++) printf("\n");
-}
+#include "headers/def.h"
+#include "headers/funcmapa.h"
 int main(){
 	srand(time(NULL));
 
@@ -63,7 +32,7 @@ int main(){
 	int muros= 0, rx= 0, ry= 0, aux=0, intentos=0;
 
 	//se rellena el mapa con muros hasta una cantidad mínima
-	while(muros <= (FILAS-2)*(COLUMNAS-2)*(3.6/10.0) && intentos<35){
+	while(muros <= (FILAS-2)*(COLUMNAS-2)*(3.6/10.0) && intentos<1000){
 
 		//generacion aleatoria de coordenadas dando margen de dos bloques
 		random(&rx, COLUMNAS-TBLOQUE*2-1, TBLOQUE*2+1);
@@ -74,10 +43,14 @@ int main(){
 		ry= ceil(ry/3.0)*TBLOQUE-1;
 
 		//las coordenadas (en bloques) deben ser pares
-		if((rx+1)/TBLOQUE&1 || (ry+1)/TBLOQUE&1){intentos++; continue;}
+		if((rx+1)/TBLOQUE&1 || (ry+1)/TBLOQUE&1){
+			intentos++;
+			continue;}
 
 		//validacion coordenadas dentro del margen
-		if ((rx>=COLUMNAS-TBLOQUE*2) || (ry>=FILAS-TBLOQUE*2) || (rx-TBLOQUE*2-1<=0) || (ry-TBLOQUE*2-1<=0)){intentos++; continue;}
+		if ((rx>=COLUMNAS-TBLOQUE*2) || (ry>=FILAS-TBLOQUE*2) || (rx-TBLOQUE*2-1<=0) || (ry-TBLOQUE*2-1<=0)){
+			intentos++;
+			continue;}
 
 		//Crea el bloque de muro 3x3 en la coordenada
 		if (mapa[ry][rx]==VACIO) rellenar(rx,ry,&muros,mapa,MURO);
@@ -112,22 +85,52 @@ int main(){
 	}
 	//Se colocan algunos muros irrompibles para evitar pasillos vacíos
 	rellenar(TBLOQUE-1, 5*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
-	rellenar(TBLOQUE-1, 9*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
-	rellenar(2+5*TBLOQUE, 6*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
-	rellenar(2+5*TBLOQUE,TBLOQUE-1, &muros, mapa, IRROMPIBLE);
-	rellenar(2+8*TBLOQUE,TBLOQUE-1, &muros, mapa, IRROMPIBLE);
-	rellenar(COLUMNAS-3,5*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
-	rellenar(COLUMNAS-3,9*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
+	rellenar(TBLOQUE-1, 10*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(6*TBLOQUE-1, 6*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(6*TBLOQUE-1,TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(6*TBLOQUE-1,8*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(9*TBLOQUE-1,8*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(9*TBLOQUE-1,TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(9*TBLOQUE-1,6*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
+	rellenar(COLUMNAS-TBLOQUE,5*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
+	rellenar(COLUMNAS-TBLOQUE,10*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
+	
+	int aguas=0;
+	intentos=0;
+	while(aguas<9*8 && intentos<100){
+		random(&rx, COLUMNAS-TBLOQUE*2, TBLOQUE*2);
+		random(&ry, FILAS-TBLOQUE*2, TBLOQUE*2);
+		rx= ceil(rx/3.0)*TBLOQUE-1;
+		ry= ceil(ry/3.0)*TBLOQUE-1;
+		if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&aguas,mapa,AGUA);
+		intentos++;
+	}
 
-	//Imprimir el mapa solo para comprobar
+	int arbustos=0;
+	intentos=0;
+	while(arbustos<9*20 && intentos<100){
+		random(&rx, COLUMNAS-TBLOQUE, TBLOQUE);
+		random(&ry, FILAS-TBLOQUE, TBLOQUE);
+		rx= ceil(rx/3.0)*TBLOQUE-1;
+		ry= ceil(ry/3.0)*TBLOQUE-1;
+		if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&arbustos,mapa,BUSH);
+		intentos++;
+	}
+
+	mapa[1*TBLOQUE-1][COLUMNAS-TBLOQUE]=JUGADOR1;
+
+	char txt[10];
+	scanf("%s",txt);
+	FILE *fp;
+	fp=fopen(txt,"w");
+	while(fp==NULL) fp=fopen(txt,"w");
+	
+	//Se guarda el mapa en un txt ingresado
 	for(int i=0; i<FILAS; i++){
-		for(int j=0;j<COLUMNAS;j++) printf("%d",mapa[i][j]);
-		printf("\n");
+		for(int j=0;j<COLUMNAS;j++) fprintf(fp,"%d ",mapa[i][j]);
+		fprintf(fp,"\n");
 	}
 	espacios(3);
-	/*FILE *fp;
-	fp=fopen(narch,"w");*/
-	printf("Muros: %d-%d, Compara:%f",(muros/9),muros,(FILAS-2)*(COLUMNAS-2)*(3.6/10.0));
 	for(int i=0; i<FILAS; i++){
         free(mapa[i]);
     }
