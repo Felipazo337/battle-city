@@ -16,6 +16,3 @@ void rellenar(int nx,int ny,int *c,int **m, int material){
 		}
 	}
 }
-void espacios(int n){
-	for(int k= 0;k<n;k++) printf("\n");
-}
