@@ -26,13 +26,13 @@ int main(){
 	//los bordes del mapa se rellenan
 	bordearmapa(COLUMNAS,FILAS,mapa,IRROMPIBLE);
 
-	//muros:cantidad de muros que se han puesto, 
+	//muros:cantidad de muros que se han puesto, mr: porcentaje de muros en el mapa
 	//rx y ry son las coordenadas aleatorias donde se pondrán los muros en x e y respectivamente
 	//aux servirá para comparar que las coordenadas aleatorias no se repitan
-	int muros= 0, rx= 0, ry= 0, aux=0, intentos=0;
-
+	int muros= 0, rx= 0, ry= 0, aux=0, intentos=0,mr;
+	random(&mr,37,28);
 	//se rellena el mapa con muros hasta una cantidad mínima
-	while(muros <= (FILAS-2)*(COLUMNAS-2)*(3.6/10.0) && intentos<1000){
+	while(muros <= (TBLOQUE*13)*(TBLOQUE*14)*(mr/100.0) && intentos<1000){
 
 		//generacion aleatoria de coordenadas dando margen de dos bloques
 		random(&rx, COLUMNAS-TBLOQUE*2-1, TBLOQUE*2+1);
@@ -43,7 +43,7 @@ int main(){
 		ry= ceil(ry/3.0)*TBLOQUE-1;
 
 		//las coordenadas (en bloques) deben ser pares
-		if((rx+1)/TBLOQUE&1 || (ry+1)/TBLOQUE&1){
+		if( (((rx+1)/TBLOQUE)&1) || (((ry+1)/TBLOQUE) & 1) ){
 			intentos++;
 			continue;}
 
@@ -65,7 +65,7 @@ int main(){
 		int cordy= aly[r]+(ry-aly[r])/2;
 
 		//Se rellena en caso de ser necesario(junto con cordx y cordy)
-		if(mapa[aly[r]][alx[r]]==VACIO && mapa[cordx][cordy]==VACIO){
+		if(mapa[aly[r]][alx[r]]==VACIO && mapa[cordy][cordx]==VACIO){
 			rellenar(alx[r], aly[r], &muros, mapa, MURO);
 			rellenar(cordx, cordy, &muros, mapa, MURO);
 		}
@@ -94,21 +94,13 @@ int main(){
 	rellenar(9*TBLOQUE-1,6*TBLOQUE-1, &muros, mapa, IRROMPIBLE);
 	rellenar(COLUMNAS-TBLOQUE,5*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
 	rellenar(COLUMNAS-TBLOQUE,10*TBLOQUE-1,&muros,mapa,IRROMPIBLE);
-	
-	int aguas=0;
-	intentos=0;
-	while(aguas<9*8 && intentos<100){
-		random(&rx, COLUMNAS-TBLOQUE*2, TBLOQUE*2);
-		random(&ry, FILAS-TBLOQUE*2, TBLOQUE*2);
-		rx= ceil(rx/3.0)*TBLOQUE-1;
-		ry= ceil(ry/3.0)*TBLOQUE-1;
-		if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&aguas,mapa,AGUA);
-		intentos++;
-	}
 
-	int arbustos=0;
+	//se coloca una cantidad aleatoria de arbustos
+	//arbustos es contador verificador y r es la cantidad de bloques	
+	int arbustos=0,r;
 	intentos=0;
-	while(arbustos<9*20 && intentos<100){
+	random(&r,6,2);
+	while(arbustos<9*r*4 && intentos<300){
 		random(&rx, COLUMNAS-TBLOQUE, TBLOQUE);
 		random(&ry, FILAS-TBLOQUE, TBLOQUE);
 		rx= ceil(rx/3.0)*TBLOQUE-1;
@@ -116,24 +108,41 @@ int main(){
 		if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&arbustos,mapa,BUSH);
 		intentos++;
 	}
+	
+	//se coloca una cantidad aleatoria de bloques de agua
+	//aguas es contador verificador y r es la cantidad de bloques
+	int aguas=0;
+	intentos=0;
+	random(&r,4,0);
+	while(aguas<9*r*3 && intentos<300){
+		random(&rx, COLUMNAS-TBLOQUE*3, TBLOQUE*2);
+		random(&ry, FILAS-TBLOQUE*2, TBLOQUE*3);
+		rx= ceil(rx/3.0)*TBLOQUE-1;
+		ry= ceil(ry/3.0)*TBLOQUE-1;
+		if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&aguas,mapa,AGUA);
+		intentos++;
+	}
 
+
+	rellenar(TBLOQUE*13-1,TBLOQUE-1,&arbustos,mapa,VACIO);
+	rellenar(TBLOQUE-1,TBLOQUE*14-1,&arbustos,mapa,VACIO);
 	mapa[1*TBLOQUE-1][COLUMNAS-TBLOQUE]=JUGADOR1;
 
 	char txt[10];
 	scanf("%s",txt);
 	FILE *fp;
-	fp=fopen(txt,"w");
-	while(fp==NULL) fp=fopen(txt,"w");
-	
+	fp = fopen(txt, "w");
+	if (fp == NULL) {
+	    printf("No se pudo guardar el mapa :(");
+	    return 1;
+	}
 	//Se guarda el mapa en un txt ingresado
 	for(int i=0; i<FILAS; i++){
 		for(int j=0;j<COLUMNAS;j++) fprintf(fp,"%d ",mapa[i][j]);
 		fprintf(fp,"\n");
 	}
-	espacios(3);
-	for(int i=0; i<FILAS; i++){
-        free(mapa[i]);
-    }
-    free(mapa);
+	
+	for(int i=0; i<FILAS; i++) free(mapa[i]);
+	free(mapa);
 	return 0;
 }
