@@ -1,0 +1,12 @@
+#define VACIO 0
+#define MURO 1
+#define IRROMPIBLE 3
+#define BUSH 4
+#define AGUA 5
+#define JUGADOR1 6
+#define JUGADOR2 7
+#define TP1 8
+#define TP2 9
+#define TBLOQUE 3
+#define FILAS 44
+#define COLUMNAS 41
