@@ -9,10 +9,6 @@ void random(int *x, int max, int min){
 	(*x)= (rand()%(max-(min)+1))+(min);
 }
 void rellenar(int nx,int ny,int *c,int **m, int material){
-	for(int i= -1; i<2; i++){
-		for(int j= -1; j<2; j++){
-			if(m[ny+i][nx+j]==VACIO) (*c)++;
-			m[ny+i][nx+j]= material;	
-		}
-	}
+	if(m[ny][nx]==VACIO) (*c)++;
+	m[ny][nx]= material;
 }
