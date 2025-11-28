@@ -7,6 +7,5 @@
 #define JUGADOR2 7
 #define TP1 8
 #define TP2 9
-#define TBLOQUE 3
-#define FILAS 44
-#define COLUMNAS 41
+#define FILAS 18
+#define COLUMNAS 17
