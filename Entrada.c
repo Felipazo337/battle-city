@@ -126,7 +126,7 @@ int main(){
 	mapa[FILAS-3][2]=JUGADOR2;
 
 	FILE *fp;
-	fp = fopen("mapa.txt", "w");
+	fp = fopen("mapa_salida.txt", "w");
 	if (fp == NULL) {
 	    printf("No se pudo guardar el mapa :(");
 	    return 1;
