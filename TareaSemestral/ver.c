@@ -60,7 +60,6 @@ void generar_mapa() {
 
 int main(int argc, char* argv[]) {
     int opcion, turnos=0;
-    char archivo[100];
 
     printf("\n========== BATTLE CITY ==========\n");
     printf("1) Nueva Partida\n2) Cargar Partida\n> ");
@@ -69,10 +68,17 @@ int main(int argc, char* argv[]) {
     generar_mapa();
 // ======= CARGAR PARTIDA =======
     if(opcion == 2){
-        printf("Archivo: "); scanf("%99s",archivo);
+        printf("Archivo(sin extencion.): "); 
+        char archivo_de_carga[100];
+        scanf("%99s", archivo_de_carga);
 
-        if(!cargar_partida(archivo,mapa,&jugador1,&jugador2,&bala1,&bala2,&turnos)){
-            printf("Error — Se inicia nueva partida.\n");
+        if(cargar_partida(archivo_de_carga,mapa,&jugador1,&jugador2,&bala1,&bala2,&turnos)){
+            printf("Partida Cargada exitosamente.\n");
+            printf(" Turnos : %d\n", turnos);
+            printf(" J1: %d vidas, %d kills\n", jugador1.vidas, jugador1.kills);
+            printf(" J2: %d vidas, %d kills\n", jugador2.vidas, jugador2.kills);
+        } else {
+            printf("Error al cargar partida. Iniciando partida nueva... \n");
             opcion = 1;
         }
     }
