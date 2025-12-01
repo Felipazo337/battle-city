@@ -28,6 +28,8 @@ int bloque_vacio(int **mapa, int x, int y){
 
     int v = mapa[y][x];
 
+	if(v== JUGADOR1 || v == JUGADOR2) return 0;
+
     //El tanque puede atravesar vacio y tps
     if (v == VACIO || v == TP1 || v == TP2 || v == BUSH) return 1;
 
@@ -373,4 +375,5 @@ void escanear_tp(int **mapa) {
             }
         }
     }
+
 }
