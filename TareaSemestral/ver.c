@@ -9,6 +9,7 @@
 #ifndef FUNCMAPA_H
 #define FUNCMAPA_H
 
+
 void bordearmapa(int x,int y,int **m,int material){
     for(int i= 0; i<y; i++){
         for(int j= 0; j<x; j++){
@@ -48,6 +49,13 @@ const char* nombres_texturas[] = {
     "assets/tp2.png"         // 9
 };
 
+SDL_Texture *btn_guardar   = NULL;
+SDL_Texture *btn_continuar = NULL;
+SDL_Texture *btn_salir     = NULL;
+
+int menu_pausa  = 0;
+int opcion_menu = 0;
+
 // Generar mapa
 void generar_mapa() {
     mapa = malloc(FILAS * sizeof(int*));
@@ -57,16 +65,31 @@ void generar_mapa() {
 }
 
 int main(int argc, char* argv[]) {
+    int opcion, turnos=0;
+    char archivo[100];
+
+    printf("\n========== BATTLE CITY ==========\n");
+    printf("1) Nueva Partida\n2) Cargar Partida\n> ");
+    scanf("%d",&opcion);
+
     generar_mapa();
+// ======= CARGAR PARTIDA =======
+    if(opcion == 2){
+        printf("Archivo: "); scanf("%99s",archivo);
 
-inicializar_tanque(&jugador1, JUGADOR1, 1, 1);                 // esquina superior izquierda
-inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);  // esquina inferior derecha (1x1) 
-    bala1.activa = bala2.activa = 0;
-
-    escanear_tp(mapa);
-    dibujar_tanque(mapa, &jugador1);
-    dibujar_tanque(mapa, &jugador2);
-
+        if(!cargar_partida(archivo,mapa,&jugador1,&jugador2,&bala1,&bala2,&turnos)){
+            printf("Error — Se inicia nueva partida.\n");
+            opcion = 1;
+        }
+    }
+   // ======= NUEVA PARTIDA =======
+    if(opcion == 1){
+        generar_mapa_completo(mapa);        // ¡AHORA SÍ ES UNA PARTIDA NUEVA!
+        escanear_tp(mapa);                  // sigue siendo necesario para los TP
+        inicializar_tanque(&jugador1, JUGADOR1, 1, 1);
+        inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);
+        bala1.activa = bala2.activa = 0;
+    }
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
@@ -77,7 +100,7 @@ inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);  // esquina inferi
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    // Cargar texturas
+// ==== CARGA DE TEXTURAS ====
     for(int i = 0; i <= 9; i++) {
         if(nombres_texturas[i]) {
             SDL_Surface* surf = IMG_Load(nombres_texturas[i]);
@@ -90,11 +113,23 @@ inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);  // esquina inferi
         }
     }
 
+//  CARGAR BOTONES DEL MENÚ 
+    btn_guardar   = IMG_LoadTexture(ren,"assets/guardar.png");
+    btn_continuar = IMG_LoadTexture(ren,"assets/continuar.png");
+    btn_salir     = IMG_LoadTexture(ren,"assets/salir.png");
+
     int running = 1;
     SDL_Event e;
     const Uint8* keys = SDL_GetKeyboardState(NULL);
     Uint64 last_time = SDL_GetTicks64();
     int turno = 0;
+
+
+
+
+
+
+
 
     while(running) {
         Uint64 now = SDL_GetTicks64();
@@ -105,21 +140,48 @@ inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);  // esquina inferi
             if(e.type == SDL_QUIT) running = 0;
 
             if(e.type == SDL_KEYDOWN) {
-            SDL_Scancode sc = e.key.keysym.scancode;
+                SDL_Scancode sc = e.key.keysym.scancode;
 
-            // Jugador 1
-            if(sc == SDL_SCANCODE_W) { mover_tanque(&jugador1, 'w', mapa); turno++; }
-            if(sc == SDL_SCANCODE_S) { mover_tanque(&jugador1, 's', mapa); turno++; }
-            if(sc == SDL_SCANCODE_A) { mover_tanque(&jugador1, 'a', mapa); turno++; }
-            if(sc == SDL_SCANCODE_D) { mover_tanque(&jugador1, 'd', mapa); turno++; }
-            if(sc == SDL_SCANCODE_G && !bala1.activa) { disparar(&bala1, &jugador1); }
+                if(sc == SDL_SCANCODE_ESCAPE) { 
+                    menu_pausa = !menu_pausa; 
+                    if(menu_pausa) opcion_menu = 0; 
+                    SDL_Delay(120); 
+                }
 
-            // Jugador 2
-            if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turno++; }
-            if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turno++; }
-            if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turno++; }
-            if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turno++; }
-            if(sc == SDL_SCANCODE_K && !bala2.activa) { disparar(&bala2, &jugador2); }
+                // ======= MENÚ PAUSA =======
+                if(menu_pausa) {
+                    if(sc == SDL_SCANCODE_UP)    opcion_menu = (opcion_menu + 2) % 3;
+                    if(sc == SDL_SCANCODE_DOWN)  opcion_menu = (opcion_menu + 1) % 3;
+
+                    if(sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER) {
+                        if(opcion_menu == 0) { // GUARDAR
+                            char archivo[100];
+                            printf("Guardar como: ");
+                            fflush(stdout);
+                            scanf("%99s", archivo);
+                            guardar_partida(archivo, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos);
+                            printf("¡Partida guardada!\n");
+                        }
+                        if(opcion_menu == 1) menu_pausa = 0;  // CONTINUAR
+                        if(opcion_menu == 2) running = 0;     // SALIR
+                    }
+                    continue; // importante: saltar el resto de controles cuando está el menú
+                }
+
+                // === CONTROLES NORMALES (solo si NO hay pausa) ===
+                // Jugador 1
+                if(sc == SDL_SCANCODE_W)     { mover_tanque(&jugador1, 'w', mapa); turno++; }
+                if(sc == SDL_SCANCODE_S)     { mover_tanque(&jugador1, 's', mapa); turno++; }
+                if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turno++; }
+                if(sc == SDL_SCANCODE_D)     { mover_tanque(&jugador1, 'd', mapa); turno++; }
+                if(sc == SDL_SCANCODE_G && !bala1.activa) { disparar(&bala1, &jugador1); }
+
+                // Jugador 2
+                if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turno++; }
+                if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turno++; }
+                if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turno++; }
+                if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turno++; }
+                if(sc == SDL_SCANCODE_K && !bala2.activa) { disparar(&bala2, &jugador2); }
             }
         }
 
@@ -200,6 +262,56 @@ inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);  // esquina inferi
             SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
             SDL_Rect br = {ox + bala2.x*cell + cell/4, oy + bala2.y*cell + cell/4, cell/2, cell/2};
             SDL_RenderFillRect(ren, &br);
+        }
+        // ================== MENÚ PAUSA ==================
+        if(menu_pausa){
+
+            SDL_SetRenderDrawBlendMode(ren,SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(ren,0,0,0,180);
+            SDL_Rect dark={0,0,win_w,win_h};
+            SDL_RenderFillRect(ren,&dark);
+
+           
+            int bw = 300, bh = 50, sep = 60;
+
+            SDL_Rect r1={win_w/2-bw/2, win_h/2-sep,     bw,bh};
+            SDL_Rect r2={win_w/2-bw/2, win_h/2,         bw,bh};
+            SDL_Rect r3={win_w/2-bw/2, win_h/2+sep,     bw,bh};
+
+            if(btn_guardar)   SDL_RenderCopy(ren,btn_guardar  ,NULL,&r1);
+            if(btn_continuar) SDL_RenderCopy(ren,btn_continuar,NULL,&r2);
+            if(btn_salir)     SDL_RenderCopy(ren,btn_salir    ,NULL,&r3);
+
+            static float t = 0; 
+            t += 0.2f;  // más rápido = más "vivo"
+
+            // Intensidad del glow (de 80 a 255 → más brillante)
+            Uint8 glow = 100 + (Uint8)(155 * (sin(t) * 0.5f + 0.5f));  // suave y potente
+
+            // Grosor del efecto (ajusta este número para hacerlo más grande)
+            int grosor = 8;  // ¡Cambia este valor! (6=pequeño, 10=grande, 15=ENORME)
+
+            // Dibujar el glow como varios rectángulos concéntricos (el truco visual)
+            SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
+            for(int i = grosor; i >= 1; i--) {
+                Uint8 alpha = 255 / (i + 2);  // más transparente cuanto más afuera
+                SDL_SetRenderDrawColor(ren, glow, glow, 30, alpha);
+
+                SDL_Rect glow_rect;
+                if(opcion_menu == 0) glow_rect = (SDL_Rect){r1.x - i, r1.y - i, r1.w + i*2, r1.h + i*2};
+                if(opcion_menu == 1) glow_rect = (SDL_Rect){r2.x - i, r2.y - i, r2.w + i*2, r2.h + i*2};
+                if(opcion_menu == 2) glow_rect = (SDL_Rect){r3.x - i, r3.y - i, r3.w + i*2, r3.h + i*2};
+
+                SDL_RenderFillRect(ren, &glow_rect);
+            }
+
+            // Borde amarillo brillante encima (opcional pero queda pro)
+            SDL_SetRenderDrawColor(ren, 255, 255, 0, 255);
+            SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_ADD);  // modo aditivo = brilla más
+
+            if(opcion_menu == 0) SDL_RenderDrawRect(ren, &(SDL_Rect){r1.x-2, r1.y-2, r1.w+4, r1.h+4});
+            if(opcion_menu == 1) SDL_RenderDrawRect(ren, &(SDL_Rect){r2.x-2, r2.y-2, r2.w+4, r2.h+4});
+            if(opcion_menu == 2) SDL_RenderDrawRect(ren, &(SDL_Rect){r3.x-2, r3.y-2, r3.w+4, r3.h+4});
         }
 
         SDL_RenderPresent(ren);
