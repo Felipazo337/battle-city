@@ -154,14 +154,14 @@ int main(int argc, char* argv[]) {
 
                     if(sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER) {
                         if(opcion_menu == 0) { // GUARDAR
+                            printf("Guardar como(sin extencion): ");
                             char archivo[100];
-                            printf("Guardar como: ");
                             fflush(stdout);
                             scanf("%99s", archivo);
 
-                            char ruta[100];
+                            char ruta[110];
                             snprintf(ruta, sizeof(ruta), "%s.txt", archivo);
-                            if(guardar_partida(archivo, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos)){
+                            if(guardar_partida(ruta, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos)){
                                 printf("Partida guardada.\n");
                             } else {
                                 printf("¡Partida guardada!\n");
