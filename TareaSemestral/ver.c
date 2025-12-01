@@ -88,7 +88,11 @@ int main(int argc, char* argv[]) {
         escanear_tp(mapa);                  // sigue siendo necesario para los TP
         inicializar_tanque(&jugador1, JUGADOR1, 1, 1);
         inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);
+        //Nuevo
+        dibujar_tanque(mapa, &JUGADOR1);
+        dibujae_tanque(mapa, &JUGADOR2);
         bala1.activa = bala2.activa = 0;
+        turnos = 0;
     }
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
@@ -326,4 +330,5 @@ int main(int argc, char* argv[]) {
     IMG_Quit();
     SDL_Quit();
     return 0;
+
 }
