@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     generar_mapa();
 // ======= CARGAR PARTIDA =======
     if(opcion == 2){
-        printf("Archivo(con extencio .txt por favor): "); 
+        printf("Archivo(con extension .txt por favor): "); 
         char archivo_de_carga[100];
         scanf("%99s", archivo_de_carga);
 
@@ -357,4 +357,5 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
