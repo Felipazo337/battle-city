@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
 
                     if(sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER) {
                         if(opcion_menu == 0) { // GUARDAR
-                            printf("Guardar como(sin extencion): ");
+                            printf("Guardar como(sin extension .txt): ");
                             char archivo[100];
                             fflush(stdout);
                             scanf("%99s", archivo);
@@ -217,11 +217,11 @@ int main(int argc, char* argv[]) {
         
         int ganador = evaluar_victoria(&jugador1, &jugador2,turno);
         if(ganador) {
-            printf("¡Juego terminado! Ganador: Jugador %d\n", ganador);
-            printf("Estadisticas Finales:\n");
-            printf(" Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
+            printf("\nJuego terminado! Ganador: JUGADOR %d\n", ganador);
+            printf("\nEstadisticas Finales:\n");
+            printf("\n Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
             printf(" Jugador 2: %d kills, %d vidas\n", jugador2.kills, jugador2.vidas);
-            printf(" Turnos totales: %d\n", turnos);
+            printf("\n Turnos totales: %d\n", turnos);
             printf("\n");
             SDL_Delay(3000);
             running = 0;
@@ -357,3 +357,4 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
