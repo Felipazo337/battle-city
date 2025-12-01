@@ -237,26 +237,26 @@ int guardar_partida(const char *archivo, int **mapa, Tanque *t1, Tanque *t2, Bal
         fprintf(fp, "\n");
     }
 
-    // Línea FILAS+2: Tanque 1
+    //Línea FILAS+2: Tanque 1
     fprintf(fp, "%d %d %c %d %d %d %d\n", 
         t1->x, t1->y, t1->direccion, t1->vidas, t1->kills, t1->id, t1->celda_debajo);
     
-    // Línea FILAS+3: Tanque 2
+    //Línea FILAS+3: Tanque 2
     fprintf(fp, "%d %d %c %d %d %d %d\n", 
         t2->x, t2->y, t2->direccion, t2->vidas, t2->kills, t2->id, t2->celda_debajo);
     
-    // Línea FILAS+4: Bala 1
+    //Línea FILAS+4: Bala 1
     fprintf(fp, "%d %d %c %d %d\n", 
         b1->x, b1->y, b1->direccion, b1->activa, b1->quien);
     
-    // Línea FILAS+5: Bala 2
+    //Línea FILAS+5: Bala 2
     fprintf(fp, "%d %d %c %d %d\n", 
         b2->x, b2->y, b2->direccion, b2->activa, b2->quien);
     
-    // Línea FILAS+6: TPs
+    //Línea FILAS+6: TPs
     fprintf(fp, "%d %d %d %d\n", tp1_x, tp1_y, tp2_x, tp2_y);
     
-    // Línea FILAS+7: Cooldown
+    //Línea FILAS+7: Cooldown
     fprintf(fp, "%ld\n", (long)teleport_cooldown_hasta);
 
     fclose(fp);
@@ -267,13 +267,13 @@ int cargar_partida(const char *archivo, int **mapa, Tanque *t1, Tanque *t2, Bala
     FILE *fp = fopen(archivo, "r");
     if (!fp) return 0;
 
-    // Leer turnos
+    //Se leen los turnos
     if (fscanf(fp, "%d", turnos) != 1) {
         fclose(fp);
         return 0;
     }
 
-    // Leer mapa
+    //Se lee el mapa
     for (int i = 0; i < FILAS; i++) {
         for (int j = 0; j < COLUMNAS; j++) {
             if (fscanf(fp, "%d", &mapa[i][j]) != 1) {
@@ -283,40 +283,40 @@ int cargar_partida(const char *archivo, int **mapa, Tanque *t1, Tanque *t2, Bala
         }
     }
 
-    // Leer tanque 1
+    //Lee las stats del tanque 1
     if (fscanf(fp, "%d %d %c %d %d %d %d", 
            &t1->x, &t1->y, &t1->direccion, &t1->vidas, &t1->kills, &t1->id, &t1->celda_debajo) != 7) {
         fclose(fp);
         return 0;
     }
 
-    // Leer tanque 2
+    //Lee las stats del tanque 2
     if (fscanf(fp, "%d %d %c %d %d %d %d", 
            &t2->x, &t2->y, &t2->direccion, &t2->vidas, &t2->kills, &t2->id, &t2->celda_debajo) != 7) {
         fclose(fp);
         return 0;
     }
 
-    // Leer bala 1
+    //Lee las stats de bala 1
     if (fscanf(fp, "%d %d %c %d %d", 
            &b1->x, &b1->y, &b1->direccion, &b1->activa, &b1->quien) != 5) {
         fclose(fp);
         return 0;
     }
 
-    // Leer bala 2
+    //Lee las stats de bala 2
     if (fscanf(fp, "%d %d %c %d %d", 
            &b2->x, &b2->y, &b2->direccion, &b2->activa, &b2->quien) != 5) {
         fclose(fp);
         return 0;
     }
 
-    // Leer TPs
+    //Lee los TPs
     if (fscanf(fp, "%d %d %d %d", &tp1_x, &tp1_y, &tp2_x, &tp2_y) != 4) {
         escanear_tp(mapa);
     }
 
-    // Leer cooldown
+    //Lee el cooldown del TP
     long cooldown_temp;
     if (fscanf(fp, "%ld", &cooldown_temp) == 1) {
         teleport_cooldown_hasta = (time_t)cooldown_temp;
@@ -330,7 +330,7 @@ int cargar_partida(const char *archivo, int **mapa, Tanque *t1, Tanque *t2, Bala
     for (int i = 0; i < FILAS; i++) {
         for (int j = 0; j < COLUMNAS; j++) {
             if (mapa[i][j] == JUGADOR1 || mapa[i][j] == JUGADOR2) {//Si la celda == JUGADOR1 o JUGADOR2 los borramos
-                // Verificar si hay un TP debajo para dejarlo activo
+                //Verificar si hay un TP debajo para dejarlo activo
                 if (tp1_x >= 0 && tp1_y >= 0 && j == tp1_x && i == tp1_y) {
                     mapa[i][j] = TP1;
                 } else if (tp2_x >= 0 && tp2_y >= 0 && j == tp2_x && i == tp2_y) {
@@ -377,3 +377,4 @@ void escanear_tp(int **mapa) {
     }
 
 }
+
