@@ -89,8 +89,8 @@ int main(int argc, char* argv[]) {
         inicializar_tanque(&jugador1, JUGADOR1, 1, 1);
         inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);
         //Nuevo
-        dibujar_tanque(mapa, &JUGADOR1);
-        dibujar_tanque(mapa, &JUGADOR2);
+        dibujar_tanque(mapa, &jugador1);
+        dibujar_tanque(mapa, &jugador2);
         bala1.activa = bala2.activa = 0;
         turnos = 0;
     }
@@ -332,4 +332,5 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
