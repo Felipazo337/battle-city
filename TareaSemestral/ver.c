@@ -59,7 +59,8 @@ void generar_mapa() {
 }
 
 int main(int argc, char* argv[]) {
-    int opcion, turnos=0;
+    int opcion;
+    int turnos = 0; //Inicializacion de los turnos
 
     printf("\n========== BATTLE CITY ==========\n");
     printf("1) Nueva Partida\n2) Cargar Partida\n> ");
@@ -68,11 +69,11 @@ int main(int argc, char* argv[]) {
     generar_mapa();
 // ======= CARGAR PARTIDA =======
     if(opcion == 2){
-        printf("Archivo(con extension .txt por favor): "); 
+        printf("Archivo(con extencion .txt por favor): "); 
         char archivo_de_carga[100];
         scanf("%99s", archivo_de_carga);
 
-        if(cargar_partida(archivo_de_carga,mapa,&jugador1,&jugador2,&bala1,&bala2,&turnos)){
+        if(cargar_partida(archivo_de_carga,mapa,&jugador1,&jugador2,&bala1,&bala2, &turnos)){
             printf("Partida Cargada exitosamente.\n");
             printf(" Turnos : %d\n", turnos);
             printf(" J1: %d vidas, %d kills\n", jugador1.vidas, jugador1.kills);
@@ -124,7 +125,6 @@ int main(int argc, char* argv[]) {
     int running = 1;
     SDL_Event e;
     Uint64 last_time = SDL_GetTicks64();
-    int turno = 0;
 
     int contador_bala = 0;
     const int BALA_UPDATE_RATE = 5;//Se actualizan las balas cada 5 frames
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
 
                     if(sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER) {
                         if(opcion_menu == 0) { // GUARDAR
-                            printf("Guardar como(sin extension .txt): ");
+                            printf("Guardar como(sin extencion): ");
                             char archivo[100];
                             fflush(stdout);
                             scanf("%99s", archivo);
@@ -176,26 +176,26 @@ int main(int argc, char* argv[]) {
 
                 // === CONTROLES NORMALES (solo si NO hay pausa) ===
                 // Jugador 1
-                if(sc == SDL_SCANCODE_W)     { mover_tanque(&jugador1, 'w', mapa); turno++; }
-                if(sc == SDL_SCANCODE_S)     { mover_tanque(&jugador1, 's', mapa); turno++; }
-                if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turno++; }
-                if(sc == SDL_SCANCODE_D)     { mover_tanque(&jugador1, 'd', mapa); turno++; }
+                if(sc == SDL_SCANCODE_W)     { mover_tanque(&jugador1, 'w', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_S)     { mover_tanque(&jugador1, 's', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_D)     { mover_tanque(&jugador1, 'd', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_SPACE) {
                     if(!bala1.activa){
                         disparar(&bala1, &jugador1); 
-                        turno++;
+                        turnos++;
                     }  
                 } 
 
                 // Jugador 2
-                if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turno++; }
-                if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turno++; }
-                if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turno++; }
-                if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turno++; }
+                if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turnos++; }
+                if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_KP_ENTER){ 
                     if(!menu_pausa && !bala2.activa){
                         disparar(&bala2, &jugador2); 
-                        turno++; 
+                        turnos++; 
                     }
                 }
                     
@@ -215,13 +215,13 @@ int main(int argc, char* argv[]) {
         }
         
         
-        int ganador = evaluar_victoria(&jugador1, &jugador2,turno);
+        int ganador = evaluar_victoria(&jugador1, &jugador2,turnos);
         if(ganador) {
-            printf("\nJuego terminado! Ganador: JUGADOR %d\n", ganador);
-            printf("\nEstadisticas Finales:\n");
-            printf("\n Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
+            printf("¡Juego terminado! Ganador: Jugador %d\n", ganador);
+            printf("Estadisticas Finales:\n");
+            printf(" Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
             printf(" Jugador 2: %d kills, %d vidas\n", jugador2.kills, jugador2.vidas);
-            printf("\n Turnos totales: %d\n", turnos);
+            printf(" Turnos totales: %d\n", turnos);
             printf("\n");
             SDL_Delay(3000);
             running = 0;
@@ -281,10 +281,10 @@ int main(int argc, char* argv[]) {
             SDL_RenderFillRect(ren, &br);
         }
 
-        printf("\rJ1: %dV %dK | J2: %dV %dK | Turno: %d/%d  ",
+        printf("\rJ1: %dV %dK | J2: %dV %dK | Turnos: %d/%d  ",
             jugador1.vidas, jugador1.kills,
             jugador2.vidas, jugador2.kills,
-            turno, MAX_TURNOS);
+            turnos, MAX_TURNOS);
         fflush(stdout);
 
 
@@ -357,5 +357,3 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
-
-
