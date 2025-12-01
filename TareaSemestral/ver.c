@@ -6,28 +6,22 @@
 #include <time.h>
 #include "headers/def.h"
 #include "headers/logica.h"
-#ifndef FUNCMAPA_H
-#define FUNCMAPA_H
+#include <math.h>
 
 
-void bordearmapa(int x,int y,int **m,int material){
-    for(int i= 0; i<y; i++){
-        for(int j= 0; j<x; j++){
-            if((j==0) || (i==0) || (i==y-1) || (j==x-1)) m[i][j]= material;
-        }
+double angulo_T(char d) {
+    switch(d) {
+        case 'N': return 0;       // Norte = 0°
+        case 'S': return 180; // Sur 
+        case 'E': return 90;     // Derecha 
+        case 'O': return 270;      // Izquierda 
     }
-}
-void random(int *x, int max, int min){
-    (*x)= (rand()%(max-(min)+1))+(min);
-}
-void rellenar(int nx,int ny,int *c,int **m, int material){
-    if(m[ny][nx]==VACIO) (*c)++;
-    m[ny][nx]= material;
+    return 0;   
 }
 
-#endif
 
 void generar_mapa_completo(int **mapa_destino);
+
 
 // Variables globales
 int **mapa = NULL;
@@ -83,8 +77,7 @@ int main(int argc, char* argv[]) {
         }
     }
    // ======= NUEVA PARTIDA =======
-    if(opcion == 1){
-        generar_mapa_completo(mapa);        // ¡AHORA SÍ ES UNA PARTIDA NUEVA!
+    if(opcion == 1){       
         escanear_tp(mapa);                  // sigue siendo necesario para los TP
         inicializar_tanque(&jugador1, JUGADOR1, 1, 1);
         inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);
@@ -124,15 +117,11 @@ int main(int argc, char* argv[]) {
 
     int running = 1;
     SDL_Event e;
-    const Uint8* keys = SDL_GetKeyboardState(NULL);
     Uint64 last_time = SDL_GetTicks64();
     int turno = 0;
 
-
-
-
-
-
+    int contador_bala = 0;
+    const int BALA_UPDATE_RATE = 5;//Se actualizan las balas cada 5 frames
 
 
     while(running) {
@@ -163,8 +152,15 @@ int main(int argc, char* argv[]) {
                             printf("Guardar como: ");
                             fflush(stdout);
                             scanf("%99s", archivo);
-                            guardar_partida(archivo, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos);
-                            printf("¡Partida guardada!\n");
+
+                            char ruta[100];
+                            snprintf(ruta, sizeof(ruta), "%s.txt", archivo);
+                            if(guardar_partida(archivo, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos)){
+                                printf("Partida guardada.\n");
+                            } else {
+                                printf("¡Partida guardada!\n");
+                            }
+
                         }
                         if(opcion_menu == 1) menu_pausa = 0;  // CONTINUAR
                         if(opcion_menu == 2) running = 0;     // SALIR
@@ -178,14 +174,25 @@ int main(int argc, char* argv[]) {
                 if(sc == SDL_SCANCODE_S)     { mover_tanque(&jugador1, 's', mapa); turno++; }
                 if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turno++; }
                 if(sc == SDL_SCANCODE_D)     { mover_tanque(&jugador1, 'd', mapa); turno++; }
-                if(sc == SDL_SCANCODE_G && !bala1.activa) { disparar(&bala1, &jugador1); }
+                if(sc == SDL_SCANCODE_SPACE) {
+                    if(!bala1.activa){
+                        disparar(&bala1, &jugador1); 
+                        turno++;
+                    }  
+                } 
 
                 // Jugador 2
                 if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turno++; }
                 if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turno++; }
                 if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turno++; }
                 if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turno++; }
-                if(sc == SDL_SCANCODE_K && !bala2.activa) { disparar(&bala2, &jugador2); }
+                if(sc == SDL_SCANCODE_KP_ENTER){ 
+                    if(!menu_pausa && !bala2.activa){
+                        disparar(&bala2, &jugador2); 
+                        turno++; 
+                    }
+                }
+                    
             }
         }
 
@@ -193,15 +200,26 @@ int main(int argc, char* argv[]) {
 
 
         // Actualizar balas
-        if(bala1.activa) actualizar_bala(&bala1, mapa, &jugador2, &jugador1);
-        if(bala2.activa) actualizar_bala(&bala2, mapa, &jugador1, &jugador2);
+        contador_bala++;
+        if(contador_bala >= BALA_UPDATE_RATE){
+            if(bala1.activa) actualizar_bala(&bala1, mapa, &jugador2, &jugador1);
+            if(bala2.activa) actualizar_bala(&bala2, mapa, &jugador1, &jugador2);
+            contador_bala = 0;
 
+        }
+        
         
         int ganador = evaluar_victoria(&jugador1, &jugador2,turno);
         if(ganador) {
             printf("¡Juego terminado! Ganador: Jugador %d\n", ganador);
+            printf("Estadisticas Finales:\n");
+            printf(" Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
+            printf(" Jugador 2: %d kills, %d vidas\n", jugador2.kills, jugador2.vidas);
+            printf(" Turnos totales: %d\n", turnos);
+            printf("\n");
             SDL_Delay(3000);
             running = 0;
+
         }
 
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
@@ -235,17 +253,6 @@ int main(int argc, char* argv[]) {
 
         // ---- DIBUJAR TANQUES CON ROTACIÓN SEGÚN 'N','S','E','O' ----
 
-
-        double angulo_T(char d) {
-            switch(d) {
-                case 'N': return 0;       // Norte = 0°
-                case 'S': return 180; // Sur 
-                case 'E': return 90;     // Derecha 
-                case 'O': return 270;      // Izquierda 
-            }
-            return 0;
-        }
-
         if (jugador1.vidas > 0) {
             SDL_Rect dst = {ox + jugador1.x * cell, oy + jugador1.y * cell, cell, cell};
             SDL_RenderCopyEx(ren, tiles[6], NULL, &dst, angulo_T(jugador1.direccion), NULL, SDL_FLIP_NONE);
@@ -267,6 +274,14 @@ int main(int argc, char* argv[]) {
             SDL_Rect br = {ox + bala2.x*cell + cell/4, oy + bala2.y*cell + cell/4, cell/2, cell/2};
             SDL_RenderFillRect(ren, &br);
         }
+
+        printf("\rJ1: %dV %dK | J2: %dV %dK | Turno: %d/%d  ",
+            jugador1.vidas, jugador1.kills,
+            jugador2.vidas, jugador2.kills,
+            turno, MAX_TURNOS);
+        fflush(stdout);
+
+
         // ================== MENÚ PAUSA ==================
         if(menu_pausa){
 
@@ -321,10 +336,14 @@ int main(int argc, char* argv[]) {
         SDL_RenderPresent(ren);
     }
 
+
     // Limpieza
     for(int i = 0; i < FILAS; i++) free(mapa[i]);
     free(mapa);
     for(int i = 0; i < 10; i++) if(tiles[i]) SDL_DestroyTexture(tiles[i]);
+    if(btn_guardar) SDL_DestroyTexture(btn_guardar);
+    if(btn_continuar) SDL_DestroyTexture(btn_continuar);
+    if(btn_salir) SDL_DestroyTexture(btn_salir);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     IMG_Quit();
@@ -332,5 +351,3 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
-
-
