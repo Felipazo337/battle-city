@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
                 if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_D)     { mover_tanque(&jugador1, 'd', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_SPACE) {
-                    if(!bala1.activa){
+                    if(!menu_pausa && !bala1.activa){
                         disparar(&bala1, &jugador1); 
                         turnos++;
                     }  
@@ -192,7 +192,7 @@ int main(int argc, char* argv[]) {
                 if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_RIGHT) { mover_tanque(&jugador2, 'd', mapa); turnos++; }
-                if(sc == SDL_SCANCODE_KP_ENTER){ 
+                if(sc == SDL_SCANCODE_RETURN){ 
                     if(!menu_pausa && !bala2.activa){
                         disparar(&bala2, &jugador2); 
                         turnos++; 
@@ -357,6 +357,7 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
 
 
