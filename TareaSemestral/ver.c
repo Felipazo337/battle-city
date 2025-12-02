@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
         
         int ganador = evaluar_victoria(&jugador1, &jugador2,turnos);
         if(ganador) {
-            printf("¡Juego terminado! Ganador: Jugador %d\n", ganador);
+        printf("\nJuego terminado! Ganador: JUGADOR %d\n", ganador);
             printf("Estadisticas Finales:\n");
             printf("\n Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
             printf(" Jugador 2: %d kills, %d vidas\n", jugador2.kills, jugador2.vidas);
@@ -357,4 +357,5 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
