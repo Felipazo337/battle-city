@@ -3,21 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "headers/def.h"
-/* funcmapa.h DESACTIVADO EN Entrada.c para evitar multiple definition */
-#undef bordearmapa
-#undef random
-#undef rellenar
-
-#define bordearmapa    __dummy_bordearmapa
-#define random         __dummy_random
-#define rellenar       __dummy_rellenar
-
-#include "headers/funcmapa.h"   // ahora  las funciones cambian nombre
-
-/* Restauramos los nombres reales SOLO para este archivo */
-#undef bordearmapa
-#undef random
-#undef rellenar
+#include "headers/def.h"
 
 void bordearmapa(int x,int y,int **m,int material){
     for(int i= 0; i<y; i++){
