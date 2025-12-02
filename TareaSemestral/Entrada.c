@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "headers/def.h"
-#include "headers/def.h"
+#include "headers/funcmapa.h.h"
 
 void bordearmapa(int x,int y,int **m,int material){
     for(int i= 0; i<y; i++){
