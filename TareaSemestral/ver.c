@@ -208,8 +208,8 @@ int main(int argc, char* argv[]) {
         // Actualizar balas
         contador_bala++;
         if(contador_bala >= BALA_UPDATE_RATE){
-            if(bala1.activa) actualizar_bala(&bala1, mapa, &jugador2, &jugador1);
-            if(bala2.activa) actualizar_bala(&bala2, mapa, &jugador1, &jugador2);
+            if(!menu_pausa && bala1.activa) actualizar_bala(&bala1, mapa, &jugador2, &jugador1);
+            if(!menu_pausa && bala2.activa) actualizar_bala(&bala2, mapa, &jugador1, &jugador2);
             contador_bala = 0;
 
         }
@@ -357,6 +357,7 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
 
 
