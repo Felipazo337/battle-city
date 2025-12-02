@@ -161,8 +161,8 @@ int main(int argc, char* argv[]) {
 
                             char ruta[110];
                             snprintf(ruta, sizeof(ruta), "%s.txt", archivo);
-                            if(guardar_partida(ruta, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos)){
-                                printf("Partida guardada.\n");
+                            if(!guardar_partida(ruta, mapa, &jugador1, &jugador2, &bala1, &bala2, turnos)){
+                                printf("Error al guardar partida.\n");
                             } else {
                                 printf("Partida guardada!\n");
                             }
@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
         
         int ganador = evaluar_victoria(&jugador1, &jugador2,turnos);
         if(ganador) {
-        printf("\nJuego terminado! Ganador: JUGADOR %d\n", ganador);
+        printf("\n\nJuego terminado! Ganador: JUGADOR %d\n", ganador);
             printf("Estadisticas Finales:\n");
             printf("\n Jugador 1: %d kills, %d vidas\n", jugador1.kills, jugador1.vidas);
             printf(" Jugador 2: %d kills, %d vidas\n", jugador2.kills, jugador2.vidas);
@@ -357,5 +357,6 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
 
