@@ -11,10 +11,10 @@
 
 double angulo_T(char d) {
     switch(d) {
-        case 'N': return 0;       // Norte = 0°
-        case 'S': return 180; // Sur 
-        case 'E': return 90;     // Derecha 
-        case 'O': return 270;      // Izquierda 
+        case 'N': return 0;          // Norte 
+        case 'S': return 180;        // Sur 
+        case 'E': return 90;         // Derecha 
+        case 'O': return 270;        // Izquierda 
     }
     return 0;   
 }
@@ -23,24 +23,23 @@ double angulo_T(char d) {
 void generar_mapa_completo(int **mapa_destino);
 
 
-// Variables globales
 int **mapa = NULL;
 Tanque jugador1, jugador2;
 Bala bala1, bala2;
 
-// Texturas (solo 0 a 9 usadas)
+// Texturas 
 SDL_Texture* tiles[10] = {NULL};
 const char* nombres_texturas[] = {
-    "assets/empty.png",     // 0
-    "assets/brick.png",     // 1
+    "assets/empty.png",     // 0 Vacio
+    "assets/brick.png",     // 1 Muro
     NULL,                   // 2 (no usado)
-    "assets/steel.png",     // 3
-    "assets/bush.png",      // 4
-    "assets/water.png",     // 5
-    "assets/player.png",    // 6 → JUGADOR 1
-    "assets/player2.png",   // 7 → JUGADOR 2
-    "assets/tp1.png",        // 8
-    "assets/tp2.png"         // 9
+    "assets/steel.png",     // 3 Irrompible
+    "assets/bush.png",      // 4 Bush
+    "assets/water.png",     // 5 Agua
+    "assets/player.png",    // 6 Jugador 1
+    "assets/player2.png",   // 7 Jugador 2
+    "assets/tp1.png",       // 8 TP1
+    "assets/tp2.png"        // 9 TP2
 };
 
 SDL_Texture *btn_guardar   = NULL;
@@ -50,7 +49,7 @@ SDL_Texture *btn_salir     = NULL;
 int menu_pausa  = 0;
 int opcion_menu = 0;
 
-// Generar mapa
+
 void generar_mapa() {
     mapa = malloc(FILAS * sizeof(int*));
     for(int i = 0; i < FILAS; i++) 
@@ -85,7 +84,7 @@ int main(int argc, char* argv[]) {
     }
    // ======= NUEVA PARTIDA =======
     if(opcion == 1){       
-        escanear_tp(mapa);                  // sigue siendo necesario para los TP
+        escanear_tp(mapa);                 
         inicializar_tanque(&jugador1, JUGADOR1, 1, 1);
         inicializar_tanque(&jugador2, JUGADOR2, COLUMNAS-2, FILAS-2);
         //Nuevo
@@ -97,14 +96,14 @@ int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
-    // Ventana ajustada al mapa 18x17
+    // Ventana de la interfaz 
     SDL_Window* win = SDL_CreateWindow("Battle City",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         1200, 900, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);  
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-// ==== CARGA DE TEXTURAS ====
+// Se cargan las texturas.
     for(int i = 0; i <= 9; i++) {
         if(nombres_texturas[i]) {
             SDL_Surface* surf = IMG_Load(nombres_texturas[i]);
@@ -117,7 +116,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-//  CARGAR BOTONES DEL MENÚ 
+//  Botones de la interfaz para el menú que pausa la partida.
     btn_guardar   = IMG_LoadTexture(ren,"assets/guardar.png");
     btn_continuar = IMG_LoadTexture(ren,"assets/continuar.png");
     btn_salir     = IMG_LoadTexture(ren,"assets/salir.png");
@@ -132,7 +131,7 @@ int main(int argc, char* argv[]) {
 
     while(running) {
         Uint64 now = SDL_GetTicks64();
-        if(now - last_time < 16) { SDL_Delay(1); continue; } // ~60 FPS
+        if(now - last_time < 16) { SDL_Delay(1); continue; } // 60 FPS
         last_time = now;
 
         while(SDL_PollEvent(&e)) {
@@ -147,7 +146,7 @@ int main(int argc, char* argv[]) {
                     SDL_Delay(120); 
                 }
 
-                // ======= MENÚ PAUSA =======
+                // Configuración del menú pausa
                 if(menu_pausa) {
                     if(sc == SDL_SCANCODE_UP)    opcion_menu = (opcion_menu + 2) % 3;
                     if(sc == SDL_SCANCODE_DOWN)  opcion_menu = (opcion_menu + 1) % 3;
@@ -171,11 +170,11 @@ int main(int argc, char* argv[]) {
                         if(opcion_menu == 1) menu_pausa = 0;  // CONTINUAR
                         if(opcion_menu == 2) running = 0;     // SALIR
                     }
-                    continue; // importante: saltar el resto de controles cuando está el menú
+                    continue; 
                 }
 
-                // === CONTROLES NORMALES (solo si NO hay pausa) ===
-                // Jugador 1
+                // Se configuran los controles de cada jugador: 
+                // Jugador 1: para moverse usa W,S,A,D y para disparar el ESPACIO. 
                 if(sc == SDL_SCANCODE_W)     { mover_tanque(&jugador1, 'w', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_S)     { mover_tanque(&jugador1, 's', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_A)     { mover_tanque(&jugador1, 'a', mapa); turnos++; }
@@ -187,7 +186,7 @@ int main(int argc, char* argv[]) {
                     }  
                 } 
 
-                // Jugador 2
+                // Jugador 2: Para moverse usa las flechitas del teclado y para disparar el ENTER.
                 if(sc == SDL_SCANCODE_UP)    { mover_tanque(&jugador2, 'w', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_DOWN)  { mover_tanque(&jugador2, 's', mapa); turnos++; }
                 if(sc == SDL_SCANCODE_LEFT)  { mover_tanque(&jugador2, 'a', mapa); turnos++; }
@@ -205,7 +204,7 @@ int main(int argc, char* argv[]) {
         
 
 
-        // Actualizar balas
+        // Actualizar Conteo de balas
         contador_bala++;
         if(contador_bala >= BALA_UPDATE_RATE){
             if(!menu_pausa && bala1.activa) actualizar_bala(&bala1, mapa, &jugador2, &jugador1);
@@ -231,7 +230,7 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
 
-        // Escala automática perfecta 
+        // Configuración escalado de las dimensiones de la interfaz 
         int win_w, win_h;
         SDL_GetWindowSize(win, &win_w, &win_h);
 
@@ -245,7 +244,7 @@ int main(int argc, char* argv[]) {
         int ox = (win_w - COLUMNAS * cell) / 2;
         int oy = (win_h - FILAS    * cell) / 2;
 
-        // Dibujar mapa
+        // Dibujar mapa en la interfaz
         for(int i = 0; i < FILAS; i++) {
             for(int j = 0; j < COLUMNAS; j++) {
                 int val = mapa[i][j];
@@ -257,7 +256,7 @@ int main(int argc, char* argv[]) {
         }
 
 
-        // ---- DIBUJAR TANQUES CON ROTACIÓN SEGÚN 'N','S','E','O' ----
+        // Configuración de la rotación de tanques según: 'N','S','E','O' 
 
         if (jugador1.vidas > 0) {
             SDL_Rect dst = {ox + jugador1.x * cell, oy + jugador1.y * cell, cell, cell};
@@ -269,7 +268,7 @@ int main(int argc, char* argv[]) {
             SDL_RenderCopyEx(ren, tiles[7], NULL, &dst, angulo_T(jugador2.direccion), NULL, SDL_FLIP_NONE);
         }
 
-        // === BALAS PEQUEÑAS  ===
+        // Renderizado balas
         if(bala1.activa) {
             SDL_SetRenderDrawColor(ren, 255, 255, 0, 255);
             SDL_Rect br = {ox + bala1.x*cell + cell/4, oy + bala1.y*cell + cell/4, cell/2, cell/2};
@@ -288,7 +287,7 @@ int main(int argc, char* argv[]) {
         fflush(stdout);
 
 
-        // ================== MENÚ PAUSA ==================
+        // Renderizado de la interfaz del menú de pausa.
         if(menu_pausa){
 
             SDL_SetRenderDrawBlendMode(ren,SDL_BLENDMODE_BLEND);
@@ -306,20 +305,21 @@ int main(int argc, char* argv[]) {
             if(btn_guardar)   SDL_RenderCopy(ren,btn_guardar  ,NULL,&r1);
             if(btn_continuar) SDL_RenderCopy(ren,btn_continuar,NULL,&r2);
             if(btn_salir)     SDL_RenderCopy(ren,btn_salir    ,NULL,&r3);
-
+            
+            // Configuración efecto botones
             static float t = 0; 
-            t += 0.2f;  // más rápido = más "vivo"
+            t += 0.2f;  
 
-            // Intensidad del glow (de 80 a 255 → más brillante)
-            Uint8 glow = 100 + (Uint8)(155 * (sin(t) * 0.5f + 0.5f));  // suave y potente
+            
+            Uint8 glow = 100 + (Uint8)(155 * (sin(t) * 0.5f + 0.5f));  
 
-            // Grosor del efecto (ajusta este número para hacerlo más grande)
-            int grosor = 8;  // ¡Cambia este valor! (6=pequeño, 10=grande, 15=ENORME)
+           
+            int grosor = 8;  
 
-            // Dibujar el glow como varios rectángulos concéntricos (el truco visual)
+            
             SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
             for(int i = grosor; i >= 1; i--) {
-                Uint8 alpha = 255 / (i + 2);  // más transparente cuanto más afuera
+                Uint8 alpha = 255 / (i + 2);  
                 SDL_SetRenderDrawColor(ren, glow, glow, 30, alpha);
 
                 SDL_Rect glow_rect;
@@ -330,9 +330,9 @@ int main(int argc, char* argv[]) {
                 SDL_RenderFillRect(ren, &glow_rect);
             }
 
-            // Borde amarillo brillante encima (opcional pero queda pro)
+            
             SDL_SetRenderDrawColor(ren, 255, 255, 0, 255);
-            SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_ADD);  // modo aditivo = brilla más
+            SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_ADD);  
 
             if(opcion_menu == 0) SDL_RenderDrawRect(ren, &(SDL_Rect){r1.x-2, r1.y-2, r1.w+4, r1.h+4});
             if(opcion_menu == 1) SDL_RenderDrawRect(ren, &(SDL_Rect){r2.x-2, r2.y-2, r2.w+4, r2.h+4});
@@ -357,6 +357,7 @@ int main(int argc, char* argv[]) {
     return 0;
 
 }
+
 
 
 
