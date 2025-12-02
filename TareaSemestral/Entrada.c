@@ -26,7 +26,7 @@ void bordearmapa(int x,int y,int **m,int material){
         }
     }
 }
-void random(int *x, int max, int min){
+void rndm(int *x, int max, int min){
     (*x)= (rand()%(max-min+1))+min;
 }
 void rellenar(int nx,int ny,int *c,int **m, int material){
@@ -61,13 +61,13 @@ void generar_mapa_completo(int **mapa_destino){
     //rx y ry son las coordenadas aleatorias donde se pondrán los muros en x e y respectivamente
     //aux servirá para comparar que las coordenadas aleatorias no se repitan
     int muros= 0, rx= 0, ry= 0, aux=0, intentos=0,mr;
-    random(&mr,35,23);
+    rndm(&mr,35,23);
     //se rellena el mapa con muros hasta una cantidad mínima
     while(muros <= FILAS*COLUMNAS*(mr/100.0) && intentos<1000){
 
         //generacion aleatoria de coordenadas dando margen de dos bloques
-        random(&rx, COLUMNAS-4, 3);
-        random(&ry, FILAS-4, 3);
+        rndm(&rx, COLUMNAS-4, 3);
+        rndm(&ry, FILAS-4, 3);
 
         //las coordenadas (en bloques) deben ser pares
         if( (rx & 1) || (ry & 1) ){
@@ -90,7 +90,7 @@ void generar_mapa_completo(int **mapa_destino){
         int alx[4]= {rx, rx, rx+2, rx-2};
         int aly[4]= {ry+2, ry-2, ry, ry};
         int r;
-        random(&r,3,0); 
+        rndm(&r,3,0); 
         aux=r;
 
         //Se guarda la coordenada entre alx/aly y rx/ry
@@ -131,10 +131,10 @@ void generar_mapa_completo(int **mapa_destino){
     //arbustos es contador verificador y r es la cantidad de bloques    
     int arbustos=0,r;
     intentos=0;
-    random(&r,24,12);
+    rndm(&r,24,12);
     while(arbustos<r && intentos<300){
-        random(&rx, COLUMNAS-2, 1);
-        random(&ry, FILAS-2, 1);
+        rndm(&rx, COLUMNAS-2, 1);
+        rndm(&ry, FILAS-2, 1);
         if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&arbustos,mapa,BUSH);
         intentos++;
     }
@@ -143,10 +143,10 @@ void generar_mapa_completo(int **mapa_destino){
     //aguas es contador verificador y r es la cantidad de bloques
     int aguas=0;
     intentos=0;
-    random(&r,15,9);
+    rndm(&r,15,9);
     while(aguas<r && intentos<300){
-        random(&rx, COLUMNAS-3, 3);
-        random(&ry, FILAS-3, 3);
+        rndm(&rx, COLUMNAS-3, 3);
+        rndm(&ry, FILAS-3, 3);
         if(mapa[ry][rx]==VACIO) rellenar(rx,ry,&aguas,mapa,AGUA);
         intentos++;
     }
